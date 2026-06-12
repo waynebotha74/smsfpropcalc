@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMSF Property Payoff Calculator | mySmsfcalculator.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0d1b3e;
+      --navy-mid: #1a2f5e;
+      --gold: #c9973a;
+      --gold-light: #e8b96a;
+      --gold-pale: #fdf4e3;
+      --cream: #faf8f4;
+      --white: #ffffff;
+      --text-dark: #0d1b3e;
+      --text-mid: #3a4a6b;
+      --text-muted: #7a8aab;
+      --border: #dce3f0;
+      --border-light: #edf0f7;
+      --input-bg: #f5f7fc;
+      --readonly-bg: #eef1f9;
+      --success: #1a7a4a;
+      --success-bg: #e8f5ee;
+      --danger: #b83232;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(13,27,62,0.08);
+      --shadow-hover: 0 8px 36px rgba(13,27,62,0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--navy);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--white); letter-spacing: 0.01em; }
+    .logo span { color: var(--gold); }
+    .header-tag { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); opacity: 0.8; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 56px 40px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(201,151,58,0.08); }
+    .hero::after  { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(201,151,58,0.06); }
+    .hero-eyebrow { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; border: 1px solid rgba(201,151,58,0.35); padding: 5px 14px; border-radius: 20px; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 14px; }
+    .hero p { color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── Layout ── */
+    .page-body { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── Section label ── */
+    .section-label { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .section-label .badge { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .section-label h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--navy); }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px solid var(--border-light); padding: 32px; margin-bottom: 24px; }
+
+    /* ── Form grid ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+    .form-grid .full-width { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
+    .field label.required::after { content: ' *'; color: var(--gold); }
+
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap .prefix { position: absolute; left: 13px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); pointer-events: none; z-index: 1; }
+    .input-wrap .suffix { position: absolute; right: 13px; font-size: 0.85rem; color: var(--text-muted); pointer-events: none; }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 11px 14px 11px 30px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    input[type="number"] { padding-left: 14px; padding-right: 30px; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(201,151,58,0.12); }
+    input[readonly] { background: var(--readonly-bg); color: var(--text-mid); cursor: default; border-style: dashed; }
+    input[readonly]:focus { box-shadow: none; border-color: var(--border); }
+
+    /* ── Payoff banner ── */
+    .payoff-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--navy);
+      border-radius: var(--radius-lg);
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .payoff-banner .label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 6px;
+    }
+    .payoff-banner .value {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .payoff-banner .sub {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+      margin-top: 4px;
+    }
+    .payoff-stats {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .payoff-stat { text-align: right; }
+    .payoff-stat .stat-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .payoff-stat .stat-value { font-size: 1.1rem; font-weight: 600; color: var(--white); }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border-light); margin: 28px 0; }
+
+    /* ── Button ── */
+    .btn-calculate { width: 100%; padding: 16px; background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; border: none; border-radius: var(--radius); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-calculate:hover { background: var(--navy-mid); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+    .btn-calculate:active { transform: translateY(0); }
+    .btn-calculate svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .results-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--navy); }
+    .results-stamp { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--success); background: var(--success-bg); padding: 5px 14px; border-radius: 20px; }
+
+    /* ── Breakdown table ── */
+    .breakdown-header { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 16px; }
+    .breakdown-wrap { overflow-x: auto; }
+    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 680px; }
+    .breakdown-table th { background: var(--navy); color: rgba(255,255,255,0.85); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 11px 14px; text-align: right; white-space: nowrap; }
+    .breakdown-table th:first-child { text-align: left; border-radius: 8px 0 0 0; }
+    .breakdown-table th:last-child { border-radius: 0 8px 0 0; }
+    .breakdown-table td { padding: 10px 14px; text-align: right; color: var(--text-mid); border-bottom: 1px solid var(--border-light); }
+    .breakdown-table td:first-child { text-align: left; font-weight: 600; color: var(--navy); }
+    .breakdown-table tr:nth-child(even) td { background: var(--cream); }
+    .breakdown-table tr:hover td { background: var(--gold-pale); }
+    .surplus-pos { color: var(--success) !important; font-weight: 600 !important; }
+    .surplus-neg { color: var(--danger) !important; font-weight: 600 !important; }
+    .payoff-row td { background: var(--gold-pale) !important; border-top: 2px solid var(--gold) !important; border-bottom: 2px solid var(--gold) !important; }
+    .payoff-row td:first-child { color: var(--gold) !important; }
+
+    /* ── Disclaimer ── */
+    .disclaimer { background: var(--cream); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: var(--radius); padding: 16px 20px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-top: 32px; }
+    .disclaimer strong { color: var(--text-mid); }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .page-body { padding: 32px 16px 60px; }
+      .card { padding: 20px; }
+      .site-header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+      .payoff-banner { padding: 20px; }
+      .payoff-stats { gap: 16px; }
+      .payoff-stat { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">my<span>SMSF</span>calculator</div>
+    <div class="header-tag">Self-Managed Super Fund Tool</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">SMSF Property Investment</div>
+    <h1>Property Payoff<br>Calculator</h1>
+    <p>See exactly how many years until your SMSF property loan is fully paid off — using rental income, super contributions, and property growth to track your path to debt-free ownership.</p>
+  </div>
+
+  <div class="page-body">
+
+    <!-- SECTION 1: Income & Contributions -->
+    <div class="section-label">
+      <div class="badge">1</div>
+      <h2>Income &amp; Super Contributions</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Gross Income — Applicant 1 (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="gross1" value="100,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Gross Income — Applicant 2 (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="gross2" value="100,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Mandatory Employer Contribution (12%) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="mandatoryCont" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Additional Contribution (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="additionalCont" value="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Total Super Contributions (yearly) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="totalSuperCont" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Weekly Rent</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="weeklyRent" value="450">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Rental Management Fee (7%) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="rentalMgmt" readonly>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 2: Property & Loan -->
+    <div class="section-label">
+      <div class="badge">2</div>
+      <h2>Property &amp; Loan Details</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Property Value</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="propertyValue" value="500,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Loan Amount</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="loanAmount" value="206,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Interest Rate</label>
+          <div class="input-wrap">
+            <input type="number" id="interestRate" value="6.85" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Property Growth Rate</label>
+          <div class="input-wrap">
+            <input type="number" id="growthRate" value="7" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 3: Running Costs -->
+    <div class="section-label">
+      <div class="badge">3</div>
+      <h2>Running Costs</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label>SMSF Running Costs (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="smsfCosts" value="3,500">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Council Rates (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="rates" value="1,950">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Insurance (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="insurance" value="450">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Body Corporate (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="bodyCorp" value="4,500">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-calculate" type="button" onclick="calculate()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+      Calculate Payoff Timeline
+    </button>
+
+    <!-- RESULTS -->
+    <div id="results">
+      <div class="divider"></div>
+
+      <div class="results-header">
+        <h2>Your Payoff Projection</h2>
+        <div class="results-stamp">✓ Calculation Complete</div>
+      </div>
+
+      <!-- Payoff banner -->
+      <div class="payoff-banner">
+        <div>
+          <div class="label">Property Paid Off In</div>
+          <div class="value" id="payoffYearsDisplay">—</div>
+          <div class="sub" id="payoffSub">years from today</div>
+        </div>
+        <div class="payoff-stats">
+          <div class="payoff-stat">
+            <div class="stat-label">Property Value at Payoff</div>
+            <div class="stat-value" id="propValueAtPayoff">—</div>
+          </div>
+          <div class="payoff-stat">
+            <div class="stat-label">Total Annual Income</div>
+            <div class="stat-value" id="totalAnnualIncome">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown table -->
+      <div class="card">
+        <div class="breakdown-header">Year-by-Year Breakdown</div>
+        <div class="breakdown-wrap">
+          <table class="breakdown-table" id="breakdownTable"></table>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This calculator provides projections for illustrative purposes only and does not constitute financial advice. Results are based on the inputs provided and assumed rates. Always consult a licensed financial adviser before making investment decisions. Past performance does not guarantee future results.
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+
+  <script>
+    // ─── Helpers ────────────────────────────────────────────────────────────────
+    function getVal(id) {
+      return parseFloat(document.getElementById(id).value.replace(/\$|,/g, '')) || 0;
+    }
+    function setVal(id, num) {
+      document.getElementById(id).value = Math.round(num).toLocaleString('en-AU');
+    }
+    function fmt(num) {
+      return '$' + Math.round(num).toLocaleString('en-AU');
+    }
+    function formatInput(el) {
+      var raw = el.value.replace(/\$|,/g, '');
+      var num = parseFloat(raw);
+      if (!isNaN(num)) el.value = Math.round(num).toLocaleString('en-AU');
+    }
+
+    // ─── Auto-calcs ─────────────────────────────────────────────────────────────
+    function recalcContribs() {
+      var g1 = getVal('gross1');
+      var g2 = getVal('gross2');
+      var mandatory = (g1 + g2) * 0.12;
+      setVal('mandatoryCont', mandatory);
+      var additional = getVal('additionalCont');
+      setVal('totalSuperCont', mandatory + additional);
+    }
+
+    function recalcRentalMgmt() {
+      var rent = getVal('weeklyRent');
+      setVal('rentalMgmt', rent * 52 * 0.07);
+    }
+
+    // ─── Wire inputs ─────────────────────────────────────────────────────────────
+    function wire(id, callbacks) {
+      var el = document.getElementById(id);
+      el.addEventListener('input', function() { callbacks.forEach(function(fn){ fn(); }); });
+      el.addEventListener('blur',  function() { formatInput(this); callbacks.forEach(function(fn){ fn(); }); });
+    }
+
+    wire('gross1',        [recalcContribs]);
+    wire('gross2',        [recalcContribs]);
+    wire('additionalCont',[recalcContribs]);
+    wire('weeklyRent',    [recalcRentalMgmt]);
+
+    // readonly fields don't need wire, non-calc editable fields just need blur format
+    ['propertyValue','loanAmount','smsfCosts','rates','insurance','bodyCorp'].forEach(function(id) {
+      document.getElementById(id).addEventListener('blur', function() { formatInput(this); });
+    });
+
+    // ─── Init ────────────────────────────────────────────────────────────────────
+    recalcContribs();
+    recalcRentalMgmt();
+
+    // ─── Main calculation ─────────────────────────────────────────────────────────
+    function calculate() {
+      var gross1       = getVal('gross1');
+      var gross2       = getVal('gross2');
+      var additional   = getVal('additionalCont');
+      var mandatory    = (gross1 + gross2) * 0.12;
+      var totalSuper   = mandatory + additional;
+      var weeklyRent   = getVal('weeklyRent');
+      var yearlyRent   = weeklyRent * 52;
+      var rentalMgmt   = yearlyRent * 0.07;
+      var propertyVal  = getVal('propertyValue');
+      var loanAmt      = getVal('loanAmount');
+      var interestRate = (parseFloat(document.getElementById('interestRate').value) || 0) / 100;
+      var growthRate   = (parseFloat(document.getElementById('growthRate').value) || 0) / 100;
+      var smsfCosts    = getVal('smsfCosts');
+      var baseRates    = getVal('rates');
+      var insurance    = getVal('insurance');
+      var bodyCorp     = getVal('bodyCorp');
+
+      var totalIncome  = totalSuper + yearlyRent;
+
+      var balance    = loanAmt;
+      var propValue  = propertyVal;
+      var paidOffYear = null;
+      var rows       = [];
+      var maxYears   = 30;
+
+      for (var year = 1; year <= maxYears; year++) {
+        if (balance <= 0) break;
+
+        var interest   = balance * interestRate;
+        var totalCosts = interest + rentalMgmt + smsfCosts + baseRates + insurance + bodyCorp;
+        var surplus    = totalIncome - totalCosts;
+
+        balance   -= surplus;  // surplus reduces loan balance
+        var growth = propValue * growthRate;
+        propValue += growth;
+
+        var isPaidOff = (balance <= 0 && paidOffYear === null);
+        if (isPaidOff) paidOffYear = year;
+
+        rows.push({
+          year:       year,
+          interest:   interest,
+          totalCosts: totalCosts,
+          surplus:    surplus,
+          balance:    balance,
+          growth:     growth,
+          propValue:  propValue,
+          isPaidOff:  isPaidOff
+        });
+      }
+
+      var payoffLabel = paidOffYear ? paidOffYear + ' Years' : '>' + maxYears + ' Years';
+      var propAtPayoff = paidOffYear ? rows[paidOffYear - 1].propValue : null;
+
+      // ─ Update banner ─
+      document.getElementById('payoffYearsDisplay').textContent = paidOffYear ? paidOffYear : '>' + maxYears;
+      document.getElementById('payoffSub').textContent          = paidOffYear ? 'years from today' : 'not paid off within ' + maxYears + ' years';
+      document.getElementById('propValueAtPayoff').textContent  = propAtPayoff ? fmt(propAtPayoff) : 'N/A';
+      document.getElementById('totalAnnualIncome').textContent  = fmt(totalIncome) + ' / yr';
+
+      // ─ Build breakdown table ─
+      var tableRows = '';
+      rows.forEach(function(r) {
+        var surplusCls = r.surplus >= 0 ? 'surplus-pos' : 'surplus-neg';
+        var rowCls = r.isPaidOff ? ' class="payoff-row"' : '';
+        tableRows +=
+          '<tr' + rowCls + '>' +
+            '<td>Year ' + r.year + (r.isPaidOff ? ' ★' : '') + '</td>' +
+            '<td>' + fmt(r.interest)   + '</td>' +
+            '<td>' + fmt(r.totalCosts) + '</td>' +
+            '<td class="' + surplusCls + '">' + fmt(r.surplus) + '</td>' +
+            '<td>' + fmt(Math.max(0, r.balance)) + '</td>' +
+            '<td>' + fmt(r.growth)    + '</td>' +
+            '<td>' + fmt(r.propValue) + '</td>' +
+          '</tr>';
+      });
+
+      document.getElementById('breakdownTable').innerHTML =
+        '<thead><tr>' +
+          '<th>Year</th>' +
+          '<th>I/O Interest</th>' +
+          '<th>Total Costs</th>' +
+          '<th>Surplus</th>' +
+          '<th>Loan Balance</th>' +
+          '<th>Growth</th>' +
+          '<th>Property Value</th>' +
+        '</tr></thead>' +
+        '<tbody>' + tableRows + '</tbody>';
+
+      var resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      setTimeout(function() {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
