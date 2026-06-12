@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retail Superannuation Calculator | mySmsfcalculator.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0d1b3e;
+      --navy-mid: #1a2f5e;
+      --gold: #c9973a;
+      --gold-light: #e8b96a;
+      --gold-pale: #fdf4e3;
+      --cream: #faf8f4;
+      --white: #ffffff;
+      --text-dark: #0d1b3e;
+      --text-mid: #3a4a6b;
+      --text-muted: #7a8aab;
+      --border: #dce3f0;
+      --border-light: #edf0f7;
+      --input-bg: #f5f7fc;
+      --readonly-bg: #eef1f9;
+      --success: #1a7a4a;
+      --success-bg: #e8f5ee;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(13,27,62,0.08);
+      --shadow-hover: 0 8px 36px rgba(13,27,62,0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--navy);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--white); letter-spacing: 0.01em; }
+    .logo span { color: var(--gold); }
+    .header-tag { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); opacity: 0.8; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 56px 40px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(201,151,58,0.08); }
+    .hero::after  { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(201,151,58,0.06); }
+    .hero-eyebrow { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; border: 1px solid rgba(201,151,58,0.35); padding: 5px 14px; border-radius: 20px; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 14px; }
+    .hero p { color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+    /* ── Layout ── */
+    .page-body { max-width: 780px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── Section label ── */
+    .section-label { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .section-label .badge { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .section-label h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--navy); }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px solid var(--border-light); padding: 32px; margin-bottom: 24px; }
+
+    /* ── Form grid ── */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+    .form-grid .full-width { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
+    .field label.required::after { content: ' *'; color: var(--gold); }
+
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap .prefix { position: absolute; left: 13px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); pointer-events: none; z-index: 1; }
+    .input-wrap .suffix { position: absolute; right: 13px; font-size: 0.85rem; color: var(--text-muted); pointer-events: none; }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 11px 14px 11px 30px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    input[type="number"] { padding-left: 14px; padding-right: 30px; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(201,151,58,0.12); }
+    input[readonly] { background: var(--readonly-bg); color: var(--text-mid); cursor: default; border-style: dashed; }
+    input[readonly]:focus { box-shadow: none; border-color: var(--border); }
+
+    /* ── Readonly highlight row ── */
+    .highlight-field .input-wrap input[readonly] {
+      background: var(--gold-pale);
+      border-color: rgba(201,151,58,0.4);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border-light); margin: 28px 0; }
+
+    /* ── Button ── */
+    .btn-calculate { width: 100%; padding: 16px; background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; border: none; border-radius: var(--radius); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-calculate:hover { background: var(--navy-mid); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+    .btn-calculate:active { transform: translateY(0); }
+    .btn-calculate svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .results-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--navy); }
+    .results-stamp { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--success); background: var(--success-bg); padding: 5px 14px; border-radius: 20px; }
+
+    /* ── KPI cards ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .kpi { background: var(--cream); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 18px 16px; position: relative; overflow: hidden; }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); }
+    .kpi-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-size: 1.25rem; font-weight: 600; color: var(--navy); line-height: 1.2; }
+    .kpi-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── Summary table ── */
+    .summary-table-wrap { overflow-x: auto; margin-bottom: 28px; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .summary-table tr:not(:last-child) td { border-bottom: 1px solid var(--border-light); }
+    .summary-table td { padding: 12px 16px; color: var(--text-mid); }
+    .summary-table td:last-child { text-align: right; font-weight: 600; color: var(--navy); white-space: nowrap; }
+    .summary-table tr:hover td { background: var(--cream); }
+
+    /* ── Breakdown table ── */
+    .breakdown-header { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 16px; }
+    .breakdown-wrap { overflow-x: auto; }
+    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 460px; }
+    .breakdown-table th { background: var(--navy); color: rgba(255,255,255,0.85); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 11px 16px; text-align: right; white-space: nowrap; }
+    .breakdown-table th:first-child { text-align: left; border-radius: 8px 0 0 0; }
+    .breakdown-table th:last-child { border-radius: 0 8px 0 0; }
+    .breakdown-table td { padding: 10px 16px; text-align: right; color: var(--text-mid); border-bottom: 1px solid var(--border-light); }
+    .breakdown-table td:first-child { text-align: left; font-weight: 600; color: var(--navy); }
+    .breakdown-table tr:nth-child(even) td { background: var(--cream); }
+    .breakdown-table tr:hover td { background: var(--gold-pale); }
+    .breakdown-table .highlight-row td { background: var(--gold-pale) !important; color: var(--navy) !important; font-weight: 700 !important; border-top: 2px solid var(--gold); }
+
+    /* ── Disclaimer ── */
+    .disclaimer { background: var(--cream); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: var(--radius); padding: 16px 20px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-top: 32px; }
+    .disclaimer strong { color: var(--text-mid); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .page-body { padding: 32px 16px 60px; }
+      .card { padding: 20px; }
+      .site-header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">my<span>SMSF</span>calculator</div>
+    <div class="header-tag">Self-Managed Super Fund Tool</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Retail Superannuation</div>
+    <h1>Retail Super<br>Calculator</h1>
+    <p>Project how your retail superannuation fund grows over 20 years — factoring in employer contributions, personal top-ups, tax, and compounding investment returns.</p>
+  </div>
+
+  <div class="page-body">
+
+    <!-- SECTION 1 -->
+    <div class="section-label">
+      <div class="badge">1</div>
+      <h2>Super Balance &amp; Income</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Superannuation Balance</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="superBalance" value="100,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Gross Income — Applicant 1 (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="grossIncome1" value="110,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Gross Income — Applicant 2 (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="grossIncome2" value="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Employer Contribution (12%) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="employerContrib" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Additional Contribution (yearly)</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="additionalContrib" value="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Total Contributions (yearly) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="totalContrib" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Less 15% Contribution Tax <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="contribTax" readonly>
+          </div>
+        </div>
+
+        <div class="field highlight-field">
+          <label>Net After-Tax Contribution (yearly) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="afterTaxContrib" readonly>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-label">
+      <div class="badge">2</div>
+      <h2>Growth Assumptions</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+        <div class="field">
+          <label class="required">Estimated Annual Growth Rate</label>
+          <div class="input-wrap">
+            <input type="number" id="growthRate" value="7" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="field" style="align-self:end;">
+          <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.5;">Growth is applied to the full balance (existing + contributions) each year, compounding over the 20-year projection.</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calculate" type="button" onclick="calculate()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+      Calculate 20-Year Projection
+    </button>
+
+    <!-- RESULTS -->
+    <div id="results">
+      <div class="divider"></div>
+
+      <div class="results-header">
+        <h2>Your Projection Results</h2>
+        <div class="results-stamp">✓ Calculation Complete</div>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="summary-table-wrap">
+          <table class="summary-table" id="summaryTable"></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="breakdown-header">Year-by-Year Breakdown</div>
+        <div class="breakdown-wrap">
+          <table class="breakdown-table" id="breakdownTable"></table>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This calculator provides projections for illustrative purposes only and does not constitute financial advice. Results are based on the inputs provided and assumed rates. Always consult a licensed financial adviser before making investment decisions. Past performance does not guarantee future results.
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+
+  <script>
+    // ─── Helpers ────────────────────────────────────────────────────────────────
+    function getVal(id) {
+      return parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+    }
+    function setVal(id, num) {
+      document.getElementById(id).value = Math.round(num).toLocaleString('en-AU');
+    }
+    function fmt(num) {
+      return Math.round(num).toLocaleString('en-AU');
+    }
+    function fmtDec(num) {
+      return num.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    function formatInput(el) {
+      var num = parseFloat(el.value.replace(/,/g, ''));
+      if (!isNaN(num)) el.value = Math.round(num).toLocaleString('en-AU');
+    }
+
+    // ─── Auto-calc chain ────────────────────────────────────────────────────────
+    function recalcEmployerContrib() {
+      var g1 = getVal('grossIncome1');
+      var g2 = getVal('grossIncome2');
+      setVal('employerContrib', (g1 + g2) * 0.12);
+      recalcTotalContrib();
+    }
+
+    function recalcTotalContrib() {
+      var emp = getVal('employerContrib');
+      var add = getVal('additionalContrib');
+      setVal('totalContrib', emp + add);
+      recalcTax();
+    }
+
+    function recalcTax() {
+      var total = getVal('totalContrib');
+      var tax = total * 0.15;
+      setVal('contribTax', tax);
+      recalcAfterTax();
+    }
+
+    function recalcAfterTax() {
+      var total = getVal('totalContrib');
+      var tax   = getVal('contribTax');
+      setVal('afterTaxContrib', total - tax);
+    }
+
+    // ─── Wire inputs ────────────────────────────────────────────────────────────
+    function wire(id, callbacks) {
+      var el = document.getElementById(id);
+      el.addEventListener('input', function() { callbacks.forEach(function(fn){ fn(); }); });
+      el.addEventListener('blur',  function() { formatInput(this); callbacks.forEach(function(fn){ fn(); }); });
+    }
+
+    wire('grossIncome1',    [recalcEmployerContrib]);
+    wire('grossIncome2',    [recalcEmployerContrib]);
+    wire('additionalContrib', [recalcTotalContrib]);
+    document.getElementById('superBalance').addEventListener('blur', function() { formatInput(this); });
+
+    // ─── Initial calc on load ────────────────────────────────────────────────────
+    recalcEmployerContrib();
+
+    // ─── Main calculation ────────────────────────────────────────────────────────
+    function calculate() {
+      var balance       = getVal('superBalance');
+      var afterTax      = getVal('afterTaxContrib');
+      var totalContrib  = getVal('totalContrib');
+      var contribTax    = getVal('contribTax');
+      var employerC     = getVal('employerContrib');
+      var additionalC   = getVal('additionalContrib');
+      var grossIncome1  = getVal('grossIncome1');
+      var grossIncome2  = getVal('grossIncome2');
+      var growthRate    = (parseFloat(document.getElementById('growthRate').value) || 0) / 100;
+      var startBalance  = balance;
+
+      var rows = [];
+      for (var year = 1; year <= 20; year++) {
+        var openingBalance = balance;
+        var growth = (openingBalance + afterTax) * growthRate;
+        balance = openingBalance + afterTax + growth;
+        rows.push({ year: year, opening: openingBalance, contrib: afterTax, growth: growth, closing: balance });
+      }
+
+      var val10 = rows[9].closing;
+      var val15 = rows[14].closing;
+      var val20 = rows[19].closing;
+      var totalGrowth = val20 - startBalance;
+      var totalContributed = afterTax * 20;
+
+      // ─ KPIs ─
+      document.getElementById('kpiGrid').innerHTML =
+        '<div class="kpi">' +
+          '<div class="kpi-label">Balance at 10 Years</div>' +
+          '<div class="kpi-value">$' + fmt(val10) + '</div>' +
+          '<div class="kpi-sub">Projected fund value</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Balance at 15 Years</div>' +
+          '<div class="kpi-value">$' + fmt(val15) + '</div>' +
+          '<div class="kpi-sub">Projected fund value</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Balance at 20 Years</div>' +
+          '<div class="kpi-value">$' + fmt(val20) + '</div>' +
+          '<div class="kpi-sub">Projected fund value</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Total Investment Growth</div>' +
+          '<div class="kpi-value">$' + fmt(totalGrowth) + '</div>' +
+          '<div class="kpi-sub">Over 20 years</div>' +
+        '</div>';
+
+      // ─ Summary ─
+      document.getElementById('summaryTable').innerHTML =
+        '<tr><td>Opening Super Balance</td><td>$' + fmt(startBalance) + '</td></tr>' +
+        '<tr><td>Combined Gross Income</td><td>$' + fmt(grossIncome1 + grossIncome2) + '</td></tr>' +
+        '<tr><td>Employer Contribution (12%)</td><td>$' + fmt(employerC) + '</td></tr>' +
+        '<tr><td>Additional Contribution</td><td>$' + fmt(additionalC) + '</td></tr>' +
+        '<tr><td>Total Gross Contribution</td><td>$' + fmt(totalContrib) + '</td></tr>' +
+        '<tr><td>Less 15% Contribution Tax</td><td>−$' + fmt(contribTax) + '</td></tr>' +
+        '<tr><td>Net Annual Contribution</td><td>$' + fmt(afterTax) + '</td></tr>' +
+        '<tr><td>Annual Growth Rate</td><td>' + (growthRate * 100).toFixed(2) + '%</td></tr>' +
+        '<tr><td>Total Contributed Over 20 Years</td><td>$' + fmt(totalContributed) + '</td></tr>' +
+        '<tr><td>Projected Balance at Year 20</td><td>$' + fmt(val20) + '</td></tr>';
+
+      // ─ Breakdown table ─
+      var milestones = { 5: true, 10: true, 15: true, 20: true };
+      var tableRows = '';
+      rows.forEach(function(r) {
+        var cls = milestones[r.year] ? ' class="highlight-row"' : '';
+        tableRows +=
+          '<tr' + cls + '>' +
+            '<td>Year ' + r.year + '</td>' +
+            '<td>$' + fmt(r.opening) + '</td>' +
+            '<td>$' + fmt(r.contrib) + '</td>' +
+            '<td>$' + fmt(r.growth) + '</td>' +
+            '<td>$' + fmt(r.closing) + '</td>' +
+          '</tr>';
+      });
+
+      document.getElementById('breakdownTable').innerHTML =
+        '<thead><tr>' +
+          '<th>Year</th>' +
+          '<th>Opening Balance</th>' +
+          '<th>Net Contribution</th>' +
+          '<th>Investment Growth</th>' +
+          '<th>Closing Balance</th>' +
+        '</tr></thead>' +
+        '<tbody>' + tableRows + '</tbody>';
+
+      var resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      setTimeout(function() {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
