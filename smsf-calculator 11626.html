@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMSF Property Calculator | mySmsfcalculator.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0d1b3e;
+      --navy-mid: #1a2f5e;
+      --gold: #c9973a;
+      --gold-light: #e8b96a;
+      --gold-pale: #fdf4e3;
+      --cream: #faf8f4;
+      --white: #ffffff;
+      --text-dark: #0d1b3e;
+      --text-mid: #3a4a6b;
+      --text-muted: #7a8aab;
+      --border: #dce3f0;
+      --border-light: #edf0f7;
+      --input-bg: #f5f7fc;
+      --readonly-bg: #eef1f9;
+      --success: #1a7a4a;
+      --success-bg: #e8f5ee;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(13,27,62,0.08);
+      --shadow-hover: 0 8px 36px rgba(13,27,62,0.14);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    .site-header {
+      background: var(--navy);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--white); letter-spacing: 0.01em; }
+    .logo span { color: var(--gold); }
+    .header-tag { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-light); opacity: 0.8; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 56px 40px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(201,151,58,0.08); }
+    .hero::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; border-radius: 50%; background: rgba(201,151,58,0.06); }
+    .hero-eyebrow { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; border: 1px solid rgba(201,151,58,0.35); padding: 5px 14px; border-radius: 20px; }
+    .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.9rem, 4vw, 2.8rem); font-weight: 700; color: var(--white); line-height: 1.2; margin-bottom: 14px; }
+    .hero p { color: rgba(255,255,255,0.6); font-size: 1rem; max-width: 520px; margin: 0 auto; line-height: 1.6; }
+
+    .page-body { max-width: 980px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    .section-label { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .section-label .badge { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: var(--gold); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .section-label h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 600; color: var(--navy); }
+
+    .card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); border: 1px solid var(--border-light); padding: 32px; margin-bottom: 24px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
+    .form-grid .full-width { grid-column: 1 / -1; }
+
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); }
+    .field label.required::after { content: ' *'; color: var(--gold); }
+
+    .input-wrap { position: relative; display: flex; align-items: center; }
+    .input-wrap .prefix { position: absolute; left: 13px; font-size: 0.9rem; font-weight: 500; color: var(--text-muted); pointer-events: none; z-index: 1; }
+    .input-wrap .suffix { position: absolute; right: 13px; font-size: 0.85rem; color: var(--text-muted); pointer-events: none; }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 11px 14px 11px 30px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    input[type="number"] { padding-left: 14px; padding-right: 30px; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input:focus { border-color: var(--gold); background: var(--white); box-shadow: 0 0 0 3px rgba(201,151,58,0.12); }
+    input[readonly] { background: var(--readonly-bg); color: var(--text-mid); cursor: default; border-style: dashed; }
+    input[readonly]:focus { box-shadow: none; border-color: var(--border); }
+
+    .state-row { display: flex; align-items: flex-end; gap: 16px; }
+    .state-row .input-wrap { flex: 1; }
+    .state-radios { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 2px; }
+    .state-radios label { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; font-weight: 600; color: var(--text-mid); cursor: pointer; padding: 7px 12px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--input-bg); transition: all 0.15s; letter-spacing: 0.03em; text-transform: none; }
+    .state-radios input[type="radio"] { display: none; }
+    .state-radios label.selected { background: var(--navy); border-color: var(--navy); color: var(--white); }
+
+    .toggle-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--gold-pale); border-radius: var(--radius); border: 1px solid rgba(201,151,58,0.2); cursor: pointer; user-select: none; }
+    .toggle-switch { width: 42px; height: 24px; background: var(--border); border-radius: 12px; position: relative; flex-shrink: 0; transition: background 0.2s; }
+    .toggle-switch::after { content: ''; width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+    .toggle-switch.on { background: var(--gold); }
+    .toggle-switch.on::after { transform: translateX(18px); }
+    .toggle-label { font-size: 0.88rem; font-weight: 500; color: var(--text-mid); }
+
+    .divider { height: 1px; background: var(--border-light); margin: 28px 0; }
+
+    .btn-calculate { width: 100%; padding: 16px; background: var(--navy); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; border: none; border-radius: var(--radius); cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .btn-calculate:hover { background: var(--navy-mid); box-shadow: var(--shadow-hover); transform: translateY(-1px); }
+    .btn-calculate:active { transform: translateY(0); }
+    .btn-calculate svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 12px; }
+    .results-header h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--navy); }
+    .results-stamp { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--success); background: var(--success-bg); padding: 5px 14px; border-radius: 20px; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .kpi { background: var(--cream); border: 1px solid var(--border-light); border-radius: var(--radius); padding: 18px 16px; position: relative; overflow: hidden; }
+    .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gold); }
+    .kpi-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-size: 1.3rem; font-weight: 600; color: var(--navy); line-height: 1.2; }
+    .kpi-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+    .summary-table-wrap { overflow-x: auto; margin-bottom: 28px; }
+    .summary-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .summary-table tr:not(:last-child) td { border-bottom: 1px solid var(--border-light); }
+    .summary-table td { padding: 12px 16px; color: var(--text-mid); }
+    .summary-table td:last-child { text-align: right; font-weight: 600; color: var(--navy); white-space: nowrap; }
+    .summary-table tr:hover td { background: var(--cream); }
+
+    .breakdown-header { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--navy); margin-bottom: 16px; }
+    .breakdown-wrap { overflow-x: auto; }
+    .breakdown-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 640px; }
+    .breakdown-table th { background: var(--navy); color: rgba(255,255,255,0.85); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 11px 14px; text-align: right; white-space: nowrap; }
+    .breakdown-table th:first-child { text-align: left; border-radius: 8px 0 0 0; }
+    .breakdown-table th:last-child { border-radius: 0 8px 0 0; }
+    .breakdown-table td { padding: 10px 14px; text-align: right; color: var(--text-mid); border-bottom: 1px solid var(--border-light); }
+    .breakdown-table td:first-child { text-align: left; font-weight: 600; color: var(--navy); }
+    .breakdown-table tr:nth-child(even) td { background: var(--cream); }
+    .breakdown-table tr:hover td { background: var(--gold-pale); }
+    .surplus-pos { color: var(--success) !important; font-weight: 600 !important; }
+    .surplus-neg { color: #b83232 !important; font-weight: 600 !important; }
+
+    .disclaimer { background: var(--cream); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: var(--radius); padding: 16px 20px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-top: 32px; }
+    .disclaimer strong { color: var(--text-mid); }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .state-row { flex-direction: column; align-items: flex-start; }
+      .page-body { padding: 32px 16px 60px; }
+      .card { padding: 20px; }
+      .site-header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="logo">my<span>SMSF</span>calculator</div>
+    <div class="header-tag">Self-Managed Super Fund Tool</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">SMSF Property Investment</div>
+    <h1>Superfund Property<br>Calculator</h1>
+    <p>Model how property investment within your SMSF performs over a 20-year horizon — including loan servicing, surplus growth, and projected total wealth.</p>
+  </div>
+
+  <div class="page-body">
+
+    <!-- SECTION 1 -->
+    <div class="section-label">
+      <div class="badge">1</div>
+      <h2>Property &amp; Loan Details</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Property Value</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="purchasePrice" value="500,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Deposit</label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="deposit" value="150,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Loan Amount <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap">
+            <span class="prefix">$</span>
+            <input type="text" id="loanAmount" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Stamp Duty <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(calculated)</em></label>
+          <div class="state-row">
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="text" id="stampDuty" readonly>
+            </div>
+            <div class="state-radios" id="stateRadios">
+              <label class="selected"><input type="radio" name="state" value="QLD" checked>QLD</label>
+              <label><input type="radio" name="state" value="NSW">NSW</label>
+              <label><input type="radio" name="state" value="ACT">ACT</label>
+              <label><input type="radio" name="state" value="WA">WA</label>
+              <label><input type="radio" name="state" value="VIC">VIC</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Mortgage Establishment Fees</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="mortgageFees" value="1,500">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Legal Fees</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="legalFees" value="1,500">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>SMSF Set-up Fees</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="smsfSetupFees" value="4,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Offset Balance <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="offsetBalance" readonly>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-label">
+      <div class="badge">2</div>
+      <h2>Superannuation &amp; Income</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Superannuation Total (current balance)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="superTotal" value="300,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Gross Income — Applicant 1 (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="grossIncome1" value="110,000">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Gross Income — Applicant 2 (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="grossIncome2" value="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Employer Super Contribution (12% of income) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="employerContrib" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Additional Super Contribution (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="additionalContrib" value="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Total Super Contribution (yearly) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="totalSuperContrib" readonly>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-label">
+      <div class="badge">3</div>
+      <h2>Rental Income &amp; Running Costs</h2>
+    </div>
+    <div class="card">
+      <div class="form-grid">
+
+        <div class="field">
+          <label class="required">Rent Received (weekly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="rentWeekly" value="450">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Rental Management Fee (7% of rent) <em style="font-style:normal;font-size:0.7em;color:var(--text-muted)">(auto)</em></label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="rentalManagement" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Interest Rate</label>
+          <div class="input-wrap">
+            <input type="number" id="interestRate" value="6.85" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="required">Property Growth Rate</label>
+          <div class="input-wrap">
+            <input type="number" id="growthRate" value="7" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>SMSF Running Costs (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="yearlyCosts" value="3,500">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Council Rates (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="ratesInitial" value="1,950">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Insurance (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="insurance" value="450">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Body Corporate (yearly)</label>
+          <div class="input-wrap"><span class="prefix">$</span>
+            <input type="text" id="bodyCorporate" value="4,500">
+          </div>
+        </div>
+
+        <div class="full-width">
+          <div class="toggle-row" id="inflationToggle">
+            <div class="toggle-switch" id="toggleSwitch"></div>
+            <span class="toggle-label">Apply 3% annual inflation to rent and running costs</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="btn-calculate" type="button" onclick="calculate()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+      Calculate 20-Year Projection
+    </button>
+
+    <!-- RESULTS -->
+    <div id="results">
+      <div class="divider"></div>
+      <div class="results-header">
+        <h2>Your Projection Results</h2>
+        <div class="results-stamp">✓ Calculation Complete</div>
+      </div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div class="summary-table-wrap">
+          <table class="summary-table" id="summaryTable"></table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="breakdown-header">Year-by-Year Breakdown</div>
+        <div class="breakdown-wrap">
+          <table class="breakdown-table" id="breakdownTable"></table>
+        </div>
+      </div>
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This calculator provides projections for illustrative purposes only and does not constitute financial advice. Results are based on the inputs provided and assumed rates. Always consult a licensed financial adviser before making investment decisions. Past performance does not guarantee future results.
+      </div>
+    </div>
+
+  </div><!-- /page-body -->
+
+  <script>
+    // ─── Inflation toggle ───────────────────────────────────────────────────────
+    let inflationOn = false;
+    document.getElementById('inflationToggle').addEventListener('click', function() {
+      inflationOn = !inflationOn;
+      document.getElementById('toggleSwitch').classList.toggle('on', inflationOn);
+    });
+
+    // ─── State radio pill styling ───────────────────────────────────────────────
+    document.querySelectorAll('input[name="state"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('#stateRadios label').forEach(function(l) { l.classList.remove('selected'); });
+        this.parentElement.classList.add('selected');
+        recalcStampDuty();
+        recalcOffsetBalance();
+      });
+    });
+
+    // ─── Stamp duty by state ────────────────────────────────────────────────────
+    function calcStampDuty(value, state) {
+      switch (state) {
+        case 'QLD':
+          if (value <= 5000)    return 0;
+          if (value <= 75000)   return 1.5  * (value - 5000)   / 100;
+          if (value <= 540000)  return 1050 + 3.5  * (value - 75000)  / 100;
+          if (value <= 1000000) return 17325 + 4.5 * (value - 540000) / 100;
+          return 38025 + 5.75 * (value - 1000000) / 100;
+        case 'NSW':
+          if (value <= 15000)   return 1.25 * value / 100;
+          if (value <= 32000)   return 187.5  + 1.5  * (value - 15000) / 100;
+          if (value <= 87000)   return 442.5  + 1.75 * (value - 32000) / 100;
+          if (value <= 327000)  return 1405   + 3.5  * (value - 87000) / 100;
+          if (value <= 1087000) return 9805   + 4.5  * (value - 327000) / 100;
+          return 44095 + 5.5 * (value - 1087000) / 100;
+        case 'ACT':
+          if (value <= 200000)  return 0.6  * value / 100;
+          if (value <= 300000)  return 1200 + 2.2  * (value - 200000) / 100;
+          if (value <= 500000)  return 3400 + 3.4  * (value - 300000) / 100;
+          if (value <= 750000)  return 10200 + 4.32 * (value - 500000) / 100;
+          if (value <= 1000000) return 21000 + 5.9  * (value - 750000) / 100;
+          return 35750 + 6.4 * (value - 1000000) / 100;
+        case 'WA':
+          if (value <= 120000)  return 1.9  * value / 100;
+          if (value <= 150000)  return 2280  + 2.85 * (value - 120000) / 100;
+          if (value <= 360000)  return 3135  + 3.8  * (value - 150000) / 100;
+          if (value <= 725000)  return 11115 + 4.75 * (value - 360000) / 100;
+          return 28452.5 + 5.15 * (value - 725000) / 100;
+        case 'VIC':
+          if (value <= 25000)   return 1.4  * value / 100;
+          if (value <= 130000)  return 350   + 2.4  * (value - 25000)  / 100;
+          if (value <= 960000)  return 2870  + 6    * (value - 130000) / 100;
+          if (value <= 2000000) return 52670 + 5.5  * (value - 960000) / 100;
+          return 109870 + 6.5 * (value - 2000000) / 100;
+        default: return 0;
+      }
+    }
+
+    // ─── Helpers ────────────────────────────────────────────────────────────────
+    function getVal(id) {
+      var raw = document.getElementById(id).value.replace(/,/g, '');
+      return parseFloat(raw) || 0;
+    }
+    function setVal(id, num) {
+      document.getElementById(id).value = fmt(num);
+    }
+    function fmt(num) {
+      return Math.round(num).toLocaleString('en-AU');
+    }
+    function fmtDec(num) {
+      return num.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function getState() {
+      var checked = document.querySelector('input[name="state"]:checked');
+      return checked ? checked.value : 'QLD';
+    }
+
+    // ─── Auto-calc chain ────────────────────────────────────────────────────────
+    function recalcStampDuty() {
+      var price = getVal('purchasePrice');
+      setVal('stampDuty', calcStampDuty(price, getState()));
+    }
+
+    function recalcLoanAmount() {
+      var price = getVal('purchasePrice');
+      var dep   = getVal('deposit');
+      setVal('loanAmount', Math.max(0, price - dep));
+    }
+
+    function recalcOffsetBalance() {
+      // Offset = Super Total - Deposit - Stamp Duty - Mortgage Fees - Legal Fees - SMSF Setup Fees
+      var superTotal   = getVal('superTotal');
+      var dep          = getVal('deposit');
+      var stamp        = getVal('stampDuty');
+      var mortFees     = getVal('mortgageFees');
+      var legalFees    = getVal('legalFees');
+      var smsfSetup    = getVal('smsfSetupFees');
+      var totalOutflow = dep + stamp + mortFees + legalFees + smsfSetup;
+      setVal('offsetBalance', Math.max(0, superTotal - totalOutflow));
+    }
+
+    function recalcEmployerContrib() {
+      var g1 = getVal('grossIncome1');
+      var g2 = getVal('grossIncome2');
+      setVal('employerContrib', (g1 + g2) * 0.12);
+      recalcTotalSuperContrib();
+    }
+
+    function recalcTotalSuperContrib() {
+      var emp = getVal('employerContrib');
+      var add = getVal('additionalContrib');
+      setVal('totalSuperContrib', emp + add);
+    }
+
+    function recalcRentalMgmt() {
+      var rent = getVal('rentWeekly');
+      setVal('rentalManagement', rent * 52 * 0.07);
+    }
+
+    function formatInput(input) {
+      var num = parseFloat(input.value.replace(/,/g, ''));
+      if (!isNaN(num)) input.value = Math.round(num).toLocaleString('en-AU');
+    }
+
+    // ─── Wire inputs ────────────────────────────────────────────────────────────
+    function wire(id, callbacks) {
+      var el = document.getElementById(id);
+      el.addEventListener('input',  function() { callbacks.forEach(function(fn){ fn(); }); });
+      el.addEventListener('blur',   function() { formatInput(this); callbacks.forEach(function(fn){ fn(); }); });
+    }
+
+    wire('purchasePrice', [recalcStampDuty, recalcLoanAmount, recalcOffsetBalance]);
+    wire('deposit',       [recalcLoanAmount, recalcOffsetBalance]);
+    wire('superTotal',    [recalcOffsetBalance]);
+    wire('mortgageFees',  [recalcOffsetBalance]);
+    wire('legalFees',     [recalcOffsetBalance]);
+    wire('smsfSetupFees', [recalcOffsetBalance]);
+    wire('grossIncome1',  [recalcEmployerContrib]);
+    wire('grossIncome2',  [recalcEmployerContrib]);
+    wire('additionalContrib', [recalcTotalSuperContrib]);
+    wire('rentWeekly',    [recalcRentalMgmt]);
+
+    // ─── Run all auto-calcs on page load ────────────────────────────────────────
+    recalcStampDuty();
+    recalcLoanAmount();
+    recalcOffsetBalance();
+    recalcEmployerContrib();
+    recalcRentalMgmt();
+
+    // ─── Main calculation ────────────────────────────────────────────────────────
+    function calculate() {
+      var purchasePrice   = getVal('purchasePrice');
+      var loanAmount      = getVal('loanAmount');
+      var deposit         = getVal('deposit');
+      var stampDuty       = getVal('stampDuty');
+      var mortgageFees    = getVal('mortgageFees');
+      var legalFees       = getVal('legalFees');
+      var smsfSetupFees   = getVal('smsfSetupFees');
+      var initialOffset   = getVal('offsetBalance');
+      var employerContrib = getVal('employerContrib');
+      var additionalContrib = getVal('additionalContrib');
+      var baseRentWeekly  = getVal('rentWeekly');
+      var interestRate    = (parseFloat(document.getElementById('interestRate').value) || 0) / 100;
+      var growthRate      = (parseFloat(document.getElementById('growthRate').value) || 0) / 100;
+      var baseYearlyCosts = getVal('yearlyCosts');
+      var baseRates       = getVal('ratesInitial');
+      var baseInsurance   = getVal('insurance');
+      var baseBodyCorp    = getVal('bodyCorporate');
+      var rentalMgmtPct   = 0.07; // 7% of gross rent
+
+      var totalSuperContrib = employerContrib + additionalContrib;
+      var totalSetupCost    = deposit + stampDuty + mortgageFees + legalFees + smsfSetupFees;
+
+      // Running state
+      var offset        = initialOffset;   // cash in offset reducing interest
+      var propertyValue = purchasePrice;
+      var maxYears      = 20;
+      var tableRows     = [];
+      var paidOffYear   = null; // null = not paid off within 20 yrs
+
+      for (var year = 1; year <= maxYears; year++) {
+        // Apply inflation if toggled
+        var inflFactor = inflationOn ? Math.pow(1.03, year - 1) : 1;
+        var rentWeekly    = baseRentWeekly  * inflFactor;
+        var yearlyCosts   = baseYearlyCosts * inflFactor;
+        var rates         = baseRates       * inflFactor;
+        var insurance     = baseInsurance   * inflFactor;
+        var bodyCorp      = baseBodyCorp    * inflFactor;
+
+        var yearlyRent    = rentWeekly * 52;
+        var rentalMgmt    = yearlyRent * rentalMgmtPct;
+
+        // Effective loan balance after offset
+        var effectiveBalance = Math.max(0, loanAmount - offset);
+
+        // Interest-only payment on effective balance
+        var ioPayment = effectiveBalance * interestRate;
+
+        // All fixed costs (excl. interest)
+        var fixedCosts = rentalMgmt + yearlyCosts + rates + insurance + bodyCorp;
+
+        // Total outgoings
+        var totalCosts = ioPayment + fixedCosts;
+
+        // Total income = rent + super contributions
+        var totalIncome = yearlyRent + totalSuperContrib;
+
+        // Surplus (can be negative = shortfall)
+        var surplus = totalIncome - totalCosts;
+
+        // Surplus goes into offset account (or drawn from it if negative)
+        offset += surplus;
+        // Offset can't exceed loan (no point beyond that)
+        if (offset > loanAmount) offset = loanAmount;
+
+        // Detect payoff year (first year effective balance reaches 0 after adding surplus)
+        var newEffective = Math.max(0, loanAmount - offset);
+        if (paidOffYear === null && newEffective <= 0) {
+          paidOffYear = year;
+        }
+
+        // Property growth
+        var growth = propertyValue * growthRate;
+        propertyValue += growth;
+
+        tableRows.push({
+          year:           year,
+          ioPayment:      ioPayment,
+          fixedCosts:     fixedCosts,
+          totalCosts:     totalCosts,
+          totalIncome:    totalIncome,
+          surplus:        surplus,
+          offsetBalance:  offset,
+          loanBalance:    newEffective,
+          growth:         growth,
+          propertyValue:  propertyValue
+        });
+      }
+
+      // ─ KPI values ─
+      var propValueAtPayoff = paidOffYear ? tableRows[paidOffYear - 1].propertyValue : null;
+      var propValue10  = tableRows[9].propertyValue;
+      var propValue15  = tableRows[14].propertyValue;
+      var propValue20  = tableRows[19].propertyValue;
+      var offset20     = tableRows[19].offsetBalance;
+      var loanBal20    = tableRows[19].loanBalance;
+
+      // After payoff, surpluses are invested in shares/super at growthRate
+      // Accumulate post-payoff surpluses as retail super balance
+      function calcRetailSuper(horizon) {
+        var startYear = paidOffYear ? paidOffYear + 1 : horizon + 1;
+        var balance = 0;
+        for (var y = startYear; y <= horizon; y++) {
+          balance = (balance + tableRows[y - 1].surplus) * (1 + growthRate);
+        }
+        return Math.max(0, balance);
+      }
+
+      var retailSuper10 = calcRetailSuper(10);
+      var retailSuper15 = calcRetailSuper(15);
+      var retailSuper20 = calcRetailSuper(20);
+
+      var totalValue10 = propValue10 + retailSuper10;
+      var totalValue15 = propValue15 + retailSuper15;
+      var totalValue20 = propValue20 + retailSuper20;
+
+      var initialYearlyRent  = baseRentWeekly * 52;
+      var initialTotalIncome = totalSuperContrib + initialYearlyRent;
+
+      // ─ Render KPIs ─
+      document.getElementById('kpiGrid').innerHTML =
+        '<div class="kpi">' +
+          '<div class="kpi-label">Property Value at Payoff</div>' +
+          '<div class="kpi-value">' + (propValueAtPayoff ? '$' + fmt(propValueAtPayoff) : 'N/A') + '</div>' +
+          '<div class="kpi-sub">' + (paidOffYear ? 'Paid off in year ' + paidOffYear : 'Not paid off in 20 yrs') + '</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Total Value — 10 Years</div>' +
+          '<div class="kpi-value">$' + fmt(totalValue10) + '</div>' +
+          '<div class="kpi-sub">Property + retail super</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Total Value — 15 Years</div>' +
+          '<div class="kpi-value">$' + fmt(totalValue15) + '</div>' +
+          '<div class="kpi-sub">Property + retail super</div>' +
+        '</div>' +
+        '<div class="kpi">' +
+          '<div class="kpi-label">Total Value — 20 Years</div>' +
+          '<div class="kpi-value">$' + fmt(totalValue20) + '</div>' +
+          '<div class="kpi-sub">Property + retail super</div>' +
+        '</div>';
+
+      // ─ Summary table ─
+      document.getElementById('summaryTable').innerHTML =
+        '<tr><td>Total Super Contribution per Year</td><td>$' + fmt(totalSuperContrib) + '</td></tr>' +
+        '<tr><td>Yearly Rental Income</td><td>$' + fmt(initialYearlyRent) + '</td></tr>' +
+        '<tr><td>Total Income per Year (Rent + Super)</td><td>$' + fmt(initialTotalIncome) + '</td></tr>' +
+        '<tr><td>Total Setup Cost (Deposit, Stamp Duty &amp; Fees)</td><td>$' + fmt(totalSetupCost) + '</td></tr>' +
+        '<tr><td>Initial Offset Balance</td><td>$' + fmt(initialOffset) + '</td></tr>' +
+        '<tr><td>Property Paid Off In</td><td>' + (paidOffYear ? paidOffYear + ' Years' : '&gt;20 Years') + '</td></tr>' +
+        '<tr><td>Property Value at Year 20</td><td>$' + fmt(propValue20) + '</td></tr>' +
+        '<tr><td>Remaining Loan Balance at Year 20</td><td>$' + fmt(loanBal20) + '</td></tr>' +
+        '<tr><td>Retail Super Balance after 20 Years</td><td>$' + fmt(retailSuper20) + '</td></tr>';
+
+      // ─ Year-by-year breakdown ─
+      var rows = '';
+      tableRows.forEach(function(r) {
+        var cls = r.surplus >= 0 ? 'surplus-pos' : 'surplus-neg';
+        rows +=
+          '<tr>' +
+            '<td>Year ' + r.year + '</td>' +
+            '<td>$' + fmt(r.ioPayment) + '</td>' +
+            '<td>$' + fmt(r.fixedCosts) + '</td>' +
+            '<td>$' + fmt(r.totalCosts) + '</td>' +
+            '<td class="' + cls + '">$' + fmt(r.surplus) + '</td>' +
+            '<td>$' + fmt(r.offsetBalance) + '</td>' +
+            '<td>$' + fmt(r.loanBalance) + '</td>' +
+            '<td>$' + fmt(r.growth) + '</td>' +
+            '<td>$' + fmt(r.propertyValue) + '</td>' +
+          '</tr>';
+      });
+
+      document.getElementById('breakdownTable').innerHTML =
+        '<thead><tr>' +
+          '<th>Year</th>' +
+          '<th>I/O Interest</th>' +
+          '<th>Fixed Costs</th>' +
+          '<th>Total Costs</th>' +
+          '<th>Surplus</th>' +
+          '<th>Offset Balance</th>' +
+          '<th>Loan Balance</th>' +
+          '<th>Growth</th>' +
+          '<th>Property Value</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>';
+
+      var resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      setTimeout(function() {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
