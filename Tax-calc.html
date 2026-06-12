@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PAYG Tax Calculator 2025–26 | My SMSF Calculator</title>
+  <meta name="description" content="Australian PAYG income tax calculator for 2025–26. Calculate your tax, Medicare levy, super entitlements and net take-home pay yearly, monthly and weekly.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:        #0d1b3e;
+      --navy-mid:    #1a2f5e;
+      --gold:        #c9973a;
+      --gold-light:  #e8b96a;
+      --gold-pale:   #fdf4e3;
+      --cream:       #faf8f4;
+      --white:       #ffffff;
+      --text-dark:   #0d1b3e;
+      --text-mid:    #3a4a6b;
+      --text-muted:  #7a8aab;
+      --border:      #dce3f0;
+      --border-light:#edf0f7;
+      --input-bg:    #f5f7fc;
+      --radius:      10px;
+      --radius-lg:   16px;
+      --shadow-card: 0 4px 24px rgba(13,27,62,0.08);
+      --shadow-hover:0 8px 36px rgba(13,27,62,0.14);
+      --success:     #1a7a4a;
+      --success-bg:  #e8f5ee;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      background: var(--navy);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--white);
+      letter-spacing: 0.01em;
+      text-decoration: none;
+    }
+    .logo span { color: var(--gold); }
+    .header-tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      opacity: 0.8;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+      padding: 56px 40px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 320px; height: 320px; border-radius: 50%;
+      background: rgba(201,151,58,0.08);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -60px; left: -60px;
+      width: 240px; height: 240px; border-radius: 50%;
+      background: rgba(201,151,58,0.06);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+      border: 1px solid rgba(201,151,58,0.35);
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .hero p {
+      color: rgba(255,255,255,0.6);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .page-body {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .section-label .badge {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--navy);
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-label h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border-light);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+
+    /* ── Input ── */
+    .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 0; }
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrap .prefix {
+      position: absolute; left: 13px;
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--text-muted); pointer-events: none; z-index: 1;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 13px 14px 13px 30px;
+      background: var(--input-bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      outline: none;
+    }
+    input:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(201,151,58,0.12);
+    }
+
+    /* ── Calculate button ── */
+    .btn-calculate {
+      width: 100%;
+      padding: 16px;
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .btn-calculate:hover {
+      background: var(--navy-mid);
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-1px);
+    }
+    .btn-calculate:active { transform: translateY(0); }
+    .btn-calculate svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── KPI summary cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .kpi {
+      background: var(--cream);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gold);
+    }
+    .kpi-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .kpi-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    .kpi.highlight .kpi-value { color: var(--success); }
+
+    /* ── Results table ── */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .results-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--navy);
+    }
+    .results-stamp {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--success);
+      background: var(--success-bg);
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    .freq-table-wrap { overflow-x: auto; margin-bottom: 8px; }
+    .freq-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .freq-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-light);
+    }
+
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+    .results-table th {
+      background: var(--navy);
+      color: rgba(255,255,255,0.75);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      text-align: left;
+    }
+    .results-table th:first-child { border-radius: 8px 0 0 0; }
+    .results-table th:last-child  { border-radius: 0 8px 0 0; text-align: right; }
+    .results-table td {
+      padding: 11px 16px;
+      color: var(--text-mid);
+      border-bottom: 1px solid var(--border-light);
+    }
+    .results-table td:last-child {
+      text-align: right;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .results-table tr:last-child td { border-bottom: none; }
+    .results-table tr:hover td { background: var(--cream); }
+    .results-table tr.total-row td {
+      background: var(--gold-pale);
+      font-weight: 700;
+      color: var(--navy);
+      border-top: 2px solid rgba(201,151,58,0.3);
+    }
+    .results-table tr.net-row td {
+      background: var(--navy);
+      color: rgba(255,255,255,0.75);
+      font-weight: 600;
+    }
+    .results-table tr.net-row td:last-child {
+      color: var(--gold-light);
+      font-size: 1rem;
+    }
+    .results-table tr.net-row td:first-child { border-radius: 0 0 0 8px; }
+    .results-table tr.net-row td:last-child  { border-radius: 0 0 8px 0; }
+
+    /* ── Tax rates reference ── */
+    .rates-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    .rates-table th {
+      background: var(--cream);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    .rates-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-mid);
+    }
+    .rates-table td:first-child { font-weight: 600; color: var(--navy); }
+    .rates-table tr:last-child td { border-bottom: none; }
+    .rates-table tr:hover td { background: var(--gold-pale); }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: var(--border-light);
+      margin: 28px 0;
+    }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      background: var(--cream);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-top: 8px;
+    }
+    .disclaimer strong { color: var(--text-mid); }
+
+    /* ── Footer ── */
+    .site-footer {
+      background: var(--navy);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-copy { font-size: 0.78rem; color: rgba(255,255,255,0.35); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: var(--gold); }
+
+    /* ── Hidden until calculated ── */
+    #results { display: none; }
+    #results.visible { display: block; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .page-body { padding: 32px 16px 60px; }
+      .card { padding: 20px; }
+      .site-header { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+      .site-footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="/" class="logo">my<span>SMSF</span>calculator</a>
+    <div class="header-tag">Self-Managed Super Fund Tools</div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Australian Tax — 2025 / 2026</div>
+    <h1>PAYG Tax Calculator</h1>
+    <p>Enter your gross annual income to instantly see your income tax, Medicare levy, super entitlements and net take-home pay — broken down yearly, monthly and weekly.</p>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Input -->
+    <div class="section-label">
+      <div class="badge">1</div>
+      <h2>Your Income</h2>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label>Gross Income Before Tax (excl. super)</label>
+        <div class="input-wrap">
+          <span class="prefix">$</span>
+          <input type="text" id="grossIncome" placeholder="e.g. 85,000" autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-calculate" type="button" onclick="calculatePAYG()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+      Calculate Tax
+    </button>
+
+    <!-- Results -->
+    <div id="results">
+
+      <div class="results-header">
+        <h2>Your Tax Breakdown</h2>
+        <div class="results-stamp">✓ 2025–26 Rates</div>
+      </div>
+
+      <!-- KPI summary -->
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <!-- Yearly -->
+      <div class="freq-label">Yearly</div>
+      <div class="freq-table-wrap">
+        <table class="results-table" id="yearlyTable"></table>
+      </div>
+
+      <!-- Monthly -->
+      <div class="freq-label">Monthly</div>
+      <div class="freq-table-wrap">
+        <table class="results-table" id="monthlyTable"></table>
+      </div>
+
+      <!-- Weekly -->
+      <div class="freq-label">Weekly</div>
+      <div class="freq-table-wrap">
+        <table class="results-table" id="weeklyTable"></table>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This calculator uses 2025–26 ATO resident tax rates and a 2% Medicare levy. It does not account for the low income tax offset (LITO), low and middle income offset, the Medicare levy surcharge, private health rebates, deductions, or other individual circumstances. For accurate tax advice consult a registered tax agent.
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Tax rates reference -->
+    <div class="section-label">
+      <div class="badge" style="background:var(--gold-pale);color:var(--gold);">i</div>
+      <h2>Resident Tax Rates 2025–26</h2>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <table class="rates-table">
+        <thead>
+          <tr><th>Taxable Income</th><th>Tax on This Income</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$0 – $18,200</td><td>Nil</td></tr>
+          <tr><td>$18,201 – $45,000</td><td>16c for each $1 over $18,200</td></tr>
+          <tr><td>$45,001 – $135,000</td><td>$4,288 plus 30c for each $1 over $45,000</td></tr>
+          <tr><td>$135,001 – $190,000</td><td>$31,288 plus 37c for each $1 over $135,000</td></tr>
+          <tr><td>$190,001 and over</td><td>$51,638 plus 45c for each $1 over $190,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /page-body -->
+
+  <footer class="site-footer">
+    <a href="/" class="footer-logo">my<span>SMSF</span>calculator</a>
+    <div class="footer-links">
+      <a href="/smsf-property-calculator">SMSF Property</a>
+      <a href="/retail-superannuation-calculator">Retail Super</a>
+      <a href="/payg-tax-calculator">PAYG Tax</a>
+      <a href="/smsf-kit-home-calculator">Kit Home</a>
+      <a href="/established-smsf-repayment-calculator">Repayments</a>
+      <a href="/borrowing-calculator">Borrowing</a>
+    </div>
+    <div class="footer-copy">© 2025–2026 My SMSF Calculator. General guidance only — not financial advice.</div>
+  </footer>
+
+  <script>
+    function fmt(n) {
+      return n.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatCurrencyInput(input) {
+      const num = parseFloat(input.value.replace(/,/g, ''));
+      if (!isNaN(num)) input.value = num.toLocaleString('en-AU');
+    }
+
+    document.getElementById('grossIncome').addEventListener('blur', function() {
+      formatCurrencyInput(this);
+    });
+
+    document.getElementById('grossIncome').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') calculatePAYG();
+    });
+
+    function calcTax(income) {
+      if (income <= 18200)  return 0;
+      if (income <= 45000)  return (income - 18200) * 0.16;
+      if (income <= 135000) return 4288 + (income - 45000) * 0.30;
+      if (income <= 190000) return 31288 + (income - 135000) * 0.37;
+      return 51638 + (income - 190000) * 0.45;
+    }
+
+    function buildTable(tableEl, gross, super_, medicare, tax, totalTax, net, divisor, label) {
+      const rows = [
+        { label: 'Gross Income Before Tax (excl. super)', value: gross / divisor },
+        { label: 'Superannuation Entitlements @ 12%',     value: super_ / divisor },
+        { label: 'Medicare Levy @ 2%',                    value: medicare / divisor },
+        { label: 'Income Tax',                            value: tax / divisor },
+        { label: 'Total Tax Payable',                     value: totalTax / divisor, cls: 'total-row' },
+        { label: 'Net Income After Tax',                  value: net / divisor,      cls: 'net-row' },
+      ];
+      let html = `<thead><tr><th>Description</th><th>${label}</th></tr></thead><tbody>`;
+      rows.forEach(r => {
+        html += `<tr class="${r.cls || ''}"><td>${r.label}</td><td>$${fmt(r.value)}</td></tr>`;
+      });
+      html += '</tbody>';
+      tableEl.innerHTML = html;
+    }
+
+    function calculatePAYG() {
+      const raw = document.getElementById('grossIncome').value.replace(/,/g, '');
+      const gross = parseFloat(raw);
+      if (isNaN(gross) || gross < 0) {
+        document.getElementById('grossIncome').focus();
+        document.getElementById('grossIncome').style.borderColor = '#c0392b';
+        return;
+      }
+      document.getElementById('grossIncome').style.borderColor = '';
+      formatCurrencyInput(document.getElementById('grossIncome'));
+
+      const superAmount = gross * 0.12;
+      const tax         = calcTax(gross);
+      const medicare    = gross * 0.02;
+      const totalTax    = tax + medicare;
+      const net         = gross - totalTax;
+      const effRate     = gross > 0 ? (totalTax / gross) * 100 : 0;
+
+      // KPIs
+      document.getElementById('kpiGrid').innerHTML = `
+        <div class="kpi">
+          <div class="kpi-label">Income Tax</div>
+          <div class="kpi-value">$${fmt(tax)}</div>
+          <div class="kpi-sub">Per year</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Total Tax (incl. Medicare)</div>
+          <div class="kpi-value">$${fmt(totalTax)}</div>
+          <div class="kpi-sub">Effective rate: ${effRate.toFixed(1)}%</div>
+        </div>
+        <div class="kpi highlight">
+          <div class="kpi-label">Net Take-Home Pay</div>
+          <div class="kpi-value">$${fmt(net)}</div>
+          <div class="kpi-sub">$${fmt(net / 12)} / month</div>
+        </div>
+      `;
+
+      buildTable(document.getElementById('yearlyTable'),  gross, superAmount, medicare, tax, totalTax, net, 1,  'Yearly');
+      buildTable(document.getElementById('monthlyTable'), gross, superAmount, medicare, tax, totalTax, net, 12, 'Monthly');
+      buildTable(document.getElementById('weeklyTable'),  gross, superAmount, medicare, tax, totalTax, net, 52, 'Weekly');
+
+      const resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  </script>
+
+</body>
+</html>
